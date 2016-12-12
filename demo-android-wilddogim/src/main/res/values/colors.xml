@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="color_text_dark">#4c5050</color>
+    <color name="color_line_dark">#d8d8d8</color>
+    <color name="bg_title_bar">#f9f9f9</color>
+    <color name="common_normal">#1bb3cf</color>
+    <color name="common_pressed">#106576</color>
+    <drawable name="trans">#00000000</drawable>
+    <color name="chat_input_shadow_color">#C8C9CA</color>
+
+    <color name="bg_activity">#f7f7f8</color>
+    <color name="color_line_light">#e8e8e8</color>
+
+    <color name="bg_content">#ffffff</color>
+    <color name="color_text_light">#666666</color>
+    <color name="editbg">#E5E5E5</color>
+    <color name="toastbg">#8c222222</color>
+
+    <color name="white">#ffffff</color>
+</resources>

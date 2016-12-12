@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root_layout"
+    android:background="@color/bg_activity"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:id="@+id/title_bar"
+        android:background="#f9f9f9"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+       >
+
+        <LinearLayout
+            android:id="@+id/ll_chat_back"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btn_chat_back"
+                android:layout_width="14dp"
+                android:layout_height="24dp"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp"
+                android:background="@drawable/back_btn"
+
+                />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="WildIM"
+                />
+
+        </LinearLayout>
+
+
+        <TextView
+            android:id="@+id/tv_titlebar_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_marginRight="15dp"
+
+            android:ellipsize="end"
+            android:gravity="center"
+            android:maxLength="15"
+            android:singleLine="true"
+            android:text="WildIM"
+            android:textColor="@color/color_text_dark"
+            android:textSize="19sp" />
+
+        <Button
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentRight="true"
+            android:gravity="center"
+            android:id="@+id/btn_add_group_member"
+            android:background="@drawable/addbutton"
+            />
+    </RelativeLayout>
+
+    <View
+        android:layout_above="@+id/bottom_bar"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="@color/color_line_dark" />
+	<RelativeLayout
+		android:id="@+id/bottom_bar"
+		android:layout_width="match_parent"
+		android:layout_height="49dp"
+		android:minHeight="50dp"
+		android:background="@color/bg_title_bar"
+		android:layout_alignParentBottom="true" >
+        
+        <CheckBox
+            android:id="@+id/cb_pic_org"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="40dp"
+            android:background="@drawable/cm_blue_check_bg"
+            android:button="@null"
+            android:checked="true" />
+          <TextView
+            android:id="@+id/textView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@id/cb_pic_org"
+            android:text="原图"
+            android:textColor="@color/color_text_dark"
+            android:textSize="20.0sp" /> 
+            
+          <TextView
+            android:id="@+id/tv_size"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@id/textView2"
+            android:text="(1024k)"
+            android:textColor="@color/color_text_light"
+            android:textSize="18.0sp" />           
+        
+		<Button
+			android:id="@+id/btn_photo_send"
+			android:layout_width="wrap_content"
+			android:layout_height="35dp"
+			android:layout_marginRight="10dp"
+			android:layout_alignParentRight="true"
+			android:layout_centerVertical="true"
+			android:text="发送" 
+			android:textColor="@color/white"
+            android:background="@drawable/common_background"
+			android:paddingLeft="15dp"
+			android:paddingRight="15dp" />
+
+    </RelativeLayout>
+	<ImageView
+		android:id="@+id/iv_pic"
+		android:layout_above="@id/bottom_bar"
+		android:layout_below="@id/title_bar"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+        android:scaleType="fitCenter"
+        />
+</RelativeLayout>

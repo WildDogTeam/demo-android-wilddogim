@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_activity"
+    android:orientation="vertical">
+
+    <!--    <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="@dimen/top_bar"
+            android:background="@color/common_botton_bar_blue"
+            android:gravity="center_vertical" >
+
+            <TextView
+                android:messageId="@+messageId/message_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="@string/recent"
+                android:textColor="@color/white"
+                android:textSize="20sp" />
+
+        </RelativeLayout>-->
+
+
+    <ListView
+        android:id="@+id/list_recent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/transparent"
+        android:cacheColorHint="#00000000"
+        android:divider="@color/color_line_light"
+        android:visibility="gone"
+        android:dividerHeight="0.5dp" />
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:id="@+id/rl_nomessage"
+        android:visibility="gone"
+        >
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+           android:text="暂无消息"
+            android:textSize="25sp"
+            android:gravity="center"
+            android:layout_centerHorizontal="true"
+            android:layout_above="@+id/tv_text_guide"
+            />
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_centerHorizontal="true"
+            android:gravity="center"
+            android:layout_height="wrap_content"
+            android:text="点击发起会话找人聊聊吧"
+            android:id="@+id/tv_text_guide"
+            android:layout_above="@+id/btn_make_conversation"
+            />
+
+        <Button
+            android:layout_width="150dp"
+            android:layout_height="30dp"
+            android:text="发起会话"
+            android:background="@drawable/codebg"
+           android:id="@+id/btn_make_conversation"
+            android:layout_margin="10dp"
+            android:padding="5dp"
+            android:layout_centerInParent="true"
+            />
+
+    </RelativeLayout>
+</LinearLayout>
