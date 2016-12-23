@@ -19,9 +19,8 @@ import com.wilddog.type.ChatType;
 import com.wilddog.utils.AlertMessageUtil;
 import com.wilddog.utils.Constant;
 import com.wilddog.wilddogim.Conversation;
-import com.wilddog.wilddogim.WilddogIMClient;
-
-import com.wilddog.wilddogim.error.WilddogIMError;
+import com.wilddog.wilddogim.WilddogIM;
+import com.wilddog.wilddogim.common.error.WilddogIMError;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -75,7 +74,7 @@ public class ChooseMemberActivity extends AppCompatActivity {
     }
 
     private void initData() {
-        friendlists.addAll(WilddogIMApplication.getFriendManager().getFriendList(WilddogIMClient.getCurrentUser().getUid()));
+        friendlists.addAll(WilddogIMApplication.getFriendManager().getFriendList(WilddogIM.getCurrentUser().getUid()));
         handler.sendEmptyMessage(0);
     }
 
@@ -102,7 +101,7 @@ public class ChooseMemberActivity extends AppCompatActivity {
     }
 
     private void sendCreateGroupRequest(final List<String> ids) {
-        WilddogIMClient.newConversation(ids, new WilddogIMClient.CompletionListener() {
+        WilddogIM.newConversation(ids, new WilddogIM.CompletionListener() {
                     @Override
                     public void onComplete(WilddogIMError error, Conversation wilddogConversation) {
                         if(error==null){

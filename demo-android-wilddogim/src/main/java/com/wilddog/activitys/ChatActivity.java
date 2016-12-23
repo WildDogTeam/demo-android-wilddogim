@@ -57,13 +57,15 @@ import com.wilddog.utils.GenerateConversationId;
 import com.wilddog.utils.SharedPrefrenceTool;
 import com.wilddog.view.customview.WildChatEditText;
 import com.wilddog.wilddogim.Conversation;
-import com.wilddog.wilddogim.WilddogIMClient;
-import com.wilddog.wilddogim.core.wildcallback.WildValueCallBack;
-import com.wilddog.wilddogim.error.WilddogIMError;
-import com.wilddog.wilddogim.message.ImageMessage;
-import com.wilddog.wilddogim.message.MessageType;
-import com.wilddog.wilddogim.message.TextMessage;
-import com.wilddog.wilddogim.message.VoiceMessage;
+import com.wilddog.wilddogim.ImageMessage;
+import com.wilddog.wilddogim.MessageType;
+import com.wilddog.wilddogim.TextMessage;
+import com.wilddog.wilddogim.VoiceMessage;
+
+import com.wilddog.wilddogim.WilddogIM;
+import com.wilddog.wilddogim.common.callback.WilddogValueCallback;
+import com.wilddog.wilddogim.common.error.WilddogIMError;
+
 
 import java.io.DataInputStream;
 import java.io.File;
@@ -83,22 +85,22 @@ import butterknife.ButterKnife;
 /**
  * Created by Administrator on 2016/6/28.
  */
-public class ChatActivity extends BaseActivity implements View.OnClickListener{
+public class ChatActivity extends BaseActivity implements View.OnClickListener {
     private TextView mTV_Title;
     private String strUserID;
 
-    private final String TAG=ChatActivity.class.getName();
+    private final String TAG = ChatActivity.class.getName();
 
     private final int MAX_PAGE_NUM = 20;
     private InputMethodManager inputKeyBoard;
-    private List<com.wilddog.wilddogim.message.Message> wildMessageList = new ArrayList<>();
+    private List<com.wilddog.wilddogim.Message> wildMessageList = new ArrayList<>();
     private ChatMsgListAdapter adapter;
     private Button back;
     private String receiver;
     private String conversationType;
     private String strGroupID;
     private String strGroupName;
-    private WilddogIMClient client;
+    private WilddogIM client;
     Conversation conversation;
     private Button addGroupMember;
 
@@ -183,11 +185,9 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
     private int current = 0;
 
 
-
     private List<List<String>> emojis;
     private ArrayList<View> pageViews;
     private ArrayList<EmojiAdapter> emojiAdapters;
-
 
 
     private Handler handler = new Handler() {
@@ -221,11 +221,11 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
     }
 
     private void onMyCreate() {
-        Log.e("BroadCast","onMyCreate CHATTYPE:"+getIntent().getStringExtra(Constant.CHATTYPE)+",USER_ID:"+getIntent().getStringExtra(Constant.USER_ID));
+        Log.e("BroadCast", "onMyCreate CHATTYPE:" + getIntent().getStringExtra(Constant.CHATTYPE) + ",USER_ID:" + getIntent().getStringExtra(Constant.USER_ID));
         conversationType = getIntent().getStringExtra(Constant.CHATTYPE);
         ButterKnife.bind(this);
-        Log.d("result",conversationType);
-        addGroupMember= (Button) findViewById(R.id.btn_add_group_member);
+        Log.d("result", conversationType);
+        addGroupMember = (Button) findViewById(R.id.btn_add_group_member);
         // 判断是群还是单聊
         if (ChatType.SINGLE_CHAT.equals(conversationType)) {
             strUserID = getIntent().getStringExtra(Constant.USER_ID);
@@ -239,22 +239,22 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
             addGroupMember.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                 ShowAlertDialog();
+                    ShowAlertDialog();
                 }
             });
         }
 
-        client= WilddogIMApplication.getClient();
+        client = WilddogIM.newInstance();
         initConversation();
         initView();
         client.addMessageListener(listener);
         client.addGroupChangeListener(wilddogIMGroupChangeListener);
     }
 
-    private WilddogIMClient.WilddogIMMessageListener listener=new WilddogIMClient.WilddogIMMessageListener() {
+    private WilddogIM.WilddogIMMessageListener listener = new WilddogIM.WilddogIMMessageListener() {
         @Override
-        public void onNewMessage(List<com.wilddog.wilddogim.message.Message> messages) {
-            for(com.wilddog.wilddogim.message.Message wildMessage:messages) {
+        public void onNewMessage(List<com.wilddog.wilddogim.Message> messages) {
+            for (com.wilddog.wilddogim.Message wildMessage : messages) {
                 if (wildMessage.getConversation().getConversationId().equals(receiver)) {
                     clearUnreadCount();
                     Log.d("receiveMessage", messages.toString());
@@ -266,7 +266,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
         }
     };
 
-    private WilddogIMClient.WilddogIMGroupChangeListener wilddogIMGroupChangeListener=new WilddogIMClient.WilddogIMGroupChangeListener() {
+    private WilddogIM.WilddogIMGroupChangeListener wilddogIMGroupChangeListener = new WilddogIM.WilddogIMGroupChangeListener() {
         @Override
         public void memberJoined(String groupId, String owner, List<String> joinedUsers) {
             clearUnreadCount();
@@ -296,19 +296,18 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
     };
 
 
-
-    private void initConversation(){
-        Log.d("result",receiver+conversationType);
+    private void initConversation() {
+        Log.d("result", receiver + conversationType);
         conversation = client.getConversation(receiver);
         if (conversation == null) {
-            client.newConversation(Arrays.asList(strUserID), new WilddogIMClient.CompletionListener() {
+            client.newConversation(Arrays.asList(strUserID), new WilddogIM.CompletionListener() {
                 @Override
                 public void onComplete(WilddogIMError error, Conversation wilddogConversation) {
-                   if(error==null){
-                       conversation=wilddogConversation;
-                   }else {
-                       Log.d("result",error.toString());
-                   }
+                    if (error == null) {
+                        conversation = wilddogConversation;
+                    } else {
+                        Log.d("result", "create conversationFailured"+error.toString());
+                    }
                 }
             });
         }
@@ -329,7 +328,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
             mTV_Title.setText(WilddogIMApplication.getFriendManager().getFriendInfoById(GenerateConversationId.getReceiver(strUserID)).getName());
         } else {
             // 根据群名称，获取群成员，生成群名
-            mTV_Title.setText(GenGroupPorpertyTool.genGroupName(conversation.getMembers(),receiver));
+            mTV_Title.setText(GenGroupPorpertyTool.genGroupName(conversation.getMembers(), receiver));
 
         }
         // 消息显示listview
@@ -367,7 +366,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
 
         lvMsgItems.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
-            public boolean onItemLongClick(final AdapterView<?> parent, View view,final int position, long id) {
+            public boolean onItemLongClick(final AdapterView<?> parent, View view, final int position, long id) {
                 AlertMessageUtil.Showdialog("你确定要删除这条信息吗？", ChatActivity.this, new AlertMessageUtil.Listener() {
                     @Override
                     public void onok() {
@@ -449,9 +448,6 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
                 }
             }
         });
-
-
-
 
 
         etMsgInput.addTextChangedListener(new TextWatcher() {
@@ -597,7 +593,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
 
             @Override
             public void onPageSelected(int arg0) {
-                Log.e("dots arg0" ,arg0+"");
+                Log.e("dots arg0", arg0 + "");
                 setCurrentDot(arg0 - 1);
                 current = arg0 - 1;
                 if (arg0 == pageViews.size() - 1 || arg0 == 0) {
@@ -703,6 +699,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
         }
 
     }
+
     //停止录音
     private boolean stopRecording() {
         if (mRecorder != null) {
@@ -773,16 +770,16 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
     }
 
 
-    private void sendTextMessage(){
+    private void sendTextMessage() {
         if (TextUtils.isEmpty(etMsgInput.getText())) {
             return;
         }
-        com.wilddog.wilddogim.message.TextMessage message = com.wilddog.wilddogim.message.Message.newMessage(etMsgInput.getText().toString().trim());
+        com.wilddog.wilddogim.TextMessage message = com.wilddog.wilddogim.Message.newMessage(etMsgInput.getText().toString().trim());
 
-        conversation.sendMessage(message, new WildValueCallBack<String>() {
+        conversation.sendMessage(message, new WilddogValueCallback<String>() {
             @Override
             public void onSuccess(String s) {
-                Log.d(TAG,"发送成功");
+                Log.d(TAG, "发送成功");
                 clearUnreadCount();
                 Message handlerMessage = Message.obtain();
                 handlerMessage.what = 1;
@@ -791,7 +788,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
 
             @Override
             public void onFailed(int code, String des) {
-             Log.d("result",des);
+                Log.d("result", des);
 
             }
         });
@@ -806,26 +803,19 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
     // 初始化过去数据
 
     public void initHistoryData() {
-        /*List list;*/
-      /*  if (ChatType.SINGLE_CHAT.equals(conversationType)) {
-            list = WildConversationManager.getHistoryMessages(GenerateConversationId.genSingleChatID(WildIMManager.getInstance().getCurrentUserId(), SharedPrefrenceTool.getToID(this)));
-        } else {
-            list = WildConversationManager.getHistoryMessages(strGroupID);
-        }*/
-       /* List list= MyOpenHelper.getInstance().getUnreadMessageList(MyOpenHelper.getInstance().getLastMessageId(receiver),receiver );*/
-        com.wilddog.wilddogim.message.Message lastMessage=conversation.getLastMessage();
-        if(lastMessage!=null){
-        List<com.wilddog.wilddogim.message.Message> list= conversation.getMessagesFromLast(null,20);
+        com.wilddog.wilddogim.Message lastMessage = conversation.getLastMessage();
+        if (lastMessage != null) {
+            List<com.wilddog.wilddogim.Message> list = conversation.getMessagesFromLast(null, 20);
 
-        if (list.size() > 0) {
-            Collections.reverse(list);
-            if(wildMessageList.size()>0){
-                wildMessageList.clear();
+            if (list.size() > 0) {
+                Collections.reverse(list);
+                if (wildMessageList.size() > 0) {
+                    wildMessageList.clear();
+                }
+                wildMessageList.addAll(list);
             }
-            wildMessageList.addAll(list);
-        }
-        // 将未读数清空
-        clearUnreadCount();
+            // 将未读数清空
+            clearUnreadCount();
         }
     }
 
@@ -854,23 +844,23 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
     }
 
 
-    private void ShowAlertDialog(){
-        final Dialog dialog=new Dialog(ChatActivity.this);
-        View view=View.inflate(ChatActivity.this,R.layout.dialog_group_operate_set,null);
-        Button add= (Button) view.findViewById(R.id.btn_add);
-        Button cancel= (Button) view.findViewById(R.id.btn_cancel);
-        final Button remove= (Button) view.findViewById(R.id.btn_remove);
-        Button exit= (Button) view.findViewById(R.id.btn_exit);
-        if(conversation.equals(SharedPrefrenceTool.getUserID(ChatActivity.this))){
+    private void ShowAlertDialog() {
+        final Dialog dialog = new Dialog(ChatActivity.this);
+        View view = View.inflate(ChatActivity.this, R.layout.dialog_group_operate_set, null);
+        Button add = (Button) view.findViewById(R.id.btn_add);
+        Button cancel = (Button) view.findViewById(R.id.btn_cancel);
+        final Button remove = (Button) view.findViewById(R.id.btn_remove);
+        Button exit = (Button) view.findViewById(R.id.btn_exit);
+        if (conversation.equals(SharedPrefrenceTool.getUserID(ChatActivity.this))) {
             remove.setVisibility(View.VISIBLE);
-        }else{
+        } else {
             remove.setVisibility(View.GONE);
         }
         add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent =new Intent(ChatActivity.this,AddMemberActivity.class);
-                intent.putExtra(Constant.GROUPID,strGroupID);
+                Intent intent = new Intent(ChatActivity.this, AddMemberActivity.class);
+                intent.putExtra(Constant.GROUPID, strGroupID);
                 startActivity(intent);
                 dialog.dismiss();
             }
@@ -884,8 +874,8 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
         remove.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent =new Intent(ChatActivity.this,RemoveMemberActivity.class);
-                intent.putExtra(Constant.GROUPID,strGroupID);
+                Intent intent = new Intent(ChatActivity.this, RemoveMemberActivity.class);
+                intent.putExtra(Constant.GROUPID, strGroupID);
                 startActivity(intent);
                 dialog.dismiss();
             }
@@ -894,7 +884,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
             @Override
             public void onClick(View v) {
                 // 移除自己
-                List<String> removeList=new ArrayList<String>();
+                List<String> removeList = new ArrayList<String>();
                 removeList.add(client.getCurrentUser().getUid());
                 conversation.removeMember(removeList);
                 conversation.delete();
@@ -980,12 +970,12 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
         } finally {
 
         }
-       ;
+        ;
 
         try {
             if (type == MessageType.IMAGE) {
                 ImageMessage imageMessage = new ImageMessage(MessageType.IMAGE, path);
-                conversation.sendMessage(imageMessage, new WildValueCallBack<String>() {
+                conversation.sendMessage(imageMessage, new WilddogValueCallback<String>() {
                     @Override
                     public void onSuccess(String s) {
                         clearUnreadCount();
@@ -1011,9 +1001,9 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
                 });
 
 
-            } else if (type ==MessageType.VOICE) {
-                VoiceMessage voiceMessage = new VoiceMessage((int)mPttRecordTime,fileData);
-                conversation.sendMessage(voiceMessage, new WildValueCallBack<String>() {
+            } else if (type == MessageType.VOICE) {
+                VoiceMessage voiceMessage = new VoiceMessage((int) mPttRecordTime, fileData);
+                conversation.sendMessage(voiceMessage, new WilddogValueCallback<String>() {
                     @Override
                     public void onSuccess(String s) {
                         clearUnreadCount();
@@ -1163,7 +1153,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
 
 
             //复制、删除、重发等
-          if (requestCode == FOR_CHAT_TEXT_MENU) {
+            if (requestCode == FOR_CHAT_TEXT_MENU) {
                 if (data == null) {
                     return;
                 }
@@ -1194,9 +1184,9 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
                         break;*/
                     case RESULT_CHAT_MENU_RESEND:
 
-                        conversation.sendMessage(entity, new WildValueCallBack() {
+                        conversation.sendMessage(entity, new WilddogValueCallback<String>() {
                             @Override
-                            public void onSuccess(Object o) {
+                            public void onSuccess(String o) {
 
                             }
 
@@ -1214,7 +1204,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
                     return;
                 }
                 final int pos = data.getIntExtra("items", -1);
-                com.wilddog.wilddogim.message.Message entity =  wildMessageList.get(pos);
+                com.wilddog.wilddogim.Message entity = wildMessageList.get(pos);
                 switch (resultCode) {
                    /* case RESULT_CHAT_MENU_COPY:
                         return;
@@ -1231,9 +1221,9 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
                         break;*/
                     case RESULT_CHAT_MENU_RESEND:
 
-                        conversation.sendMessage(entity, new WildValueCallBack() {
+                        conversation.sendMessage(entity, new WilddogValueCallback<String>() {
                             @Override
-                            public void onSuccess(Object o) {
+                            public void onSuccess(String o) {
 
                             }
 

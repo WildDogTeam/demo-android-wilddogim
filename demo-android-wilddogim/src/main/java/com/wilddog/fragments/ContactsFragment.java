@@ -16,7 +16,7 @@ import com.wilddog.type.ChatType;
 import com.wilddog.utils.Constant;
 import com.wilddog.utils.GenerateConversationId;
 import com.wilddog.utils.SharedPrefrenceTool;
-import com.wilddog.wilddogim.WilddogIMClient;
+import com.wilddog.wilddogim.WilddogIM;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,7 +49,7 @@ public class ContactsFragment extends BaseFragment {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 FriendInfo friendInfo = friendInfoList.get(position);
                 Intent intent = new Intent(getActivity(), ChatActivity.class);
-                intent.putExtra(Constant.USER_ID, GenerateConversationId.genSingleChatID(WilddogIMClient.getCurrentUser().getUid(),friendInfo.getId()));
+                intent.putExtra(Constant.USER_ID, GenerateConversationId.genSingleChatID(WilddogIM.getCurrentUser().getUid(),friendInfo.getId()));
                 intent.putExtra(Constant.CHATTYPE, ChatType.SINGLE_CHAT);
                 startActivity(intent);
             }

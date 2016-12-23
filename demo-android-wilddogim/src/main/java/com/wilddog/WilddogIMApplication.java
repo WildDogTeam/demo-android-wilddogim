@@ -17,7 +17,9 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 import com.wilddog.utils.Constant;
 import com.wilddog.utils.FriendsManamger;
-import com.wilddog.wilddogim.WilddogIMClient;
+import com.wilddog.wilddogcore.WilddogApp;
+import com.wilddog.wilddogcore.WilddogOptions;
+import com.wilddog.wilddogim.WilddogIM;
 import com.nostra13.universalimageloader.cache.memory.MemoryCache;
 import java.io.File;
 
@@ -29,7 +31,7 @@ public class WilddogIMApplication extends Application {
     private static FriendsManamger friendsManamger;
     private static WilddogIMApplication application;
     public static DisplayImageOptions mNormalImageOptions;
-    private static WilddogIMClient client;
+
     public static final String IMAGES_FOLDER = Constant.IMAG_DIR;
     int memoryCacheSize = (int) (Runtime.getRuntime().maxMemory() / 5);
     MemoryCache memoryCache;
@@ -40,7 +42,9 @@ public class WilddogIMApplication extends Application {
         mQueue = Volley.newRequestQueue(this);
         application = this;
         friendsManamger = FriendsManamger.getFriendsManager();
-        client=client.newInstance(this,"wdimdemo");
+        WilddogOptions wilddogOptions = new WilddogOptions.Builder().setSyncUrl("https://wdimdemo.wilddogio.com").build();
+        WilddogApp.initializeApp(this, wilddogOptions);
+
         mNormalImageOptions = new DisplayImageOptions.Builder().bitmapConfig(Bitmap.Config.RGB_565).cacheInMemory(true).cacheOnDisc(true)
                 .resetViewBeforeLoading(true).build();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
@@ -68,9 +72,7 @@ public class WilddogIMApplication extends Application {
         ImageLoader.getInstance().init(config);
     }
 
-    public static WilddogIMClient getClient(){
-        return client;
-    }
+
 
     public static RequestQueue getRequestQueue() {
         return mQueue;

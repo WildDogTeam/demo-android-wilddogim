@@ -25,9 +25,13 @@ import com.wilddog.fragments.RecentFragment;
 import com.wilddog.utils.Constant;
 import com.wilddog.utils.NotifycationManager;
 import com.wilddog.utils.ProgressManager;
-import com.wilddog.wilddogim.WilddogIMClient;
-import com.wilddog.wilddogim.message.MessageType;
-import com.wilddog.wilddogim.message.TextMessage;
+import com.wilddog.wilddogauth.WilddogAuth;
+import com.wilddog.wilddogim.WilddogIM;
+import com.wilddog.wilddogim.MessageType;
+import com.wilddog.wilddogim.TextMessage;
+import com.wilddog.wilddogim.WilddogIMNotification;
+import com.wilddog.wilddogim.libs.impush.core.NotificationError;
+import com.wilddog.wilddogim.libs.impush.core.WilddogNotification;
 
 import java.util.List;
 
@@ -40,7 +44,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     private int currentTab = 1;
     private TextView mTV_Title;
     public String userID;
-    private WilddogIMClient client;
+    private WilddogIM client;
     private EditText et_group_name;
     private Button loginOut;
     private Handler handler = new Handler() {
@@ -65,7 +69,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         userID = getIntent().getStringExtra(Constant.USER_ID);
 
         fgManager = getSupportFragmentManager();
-        client=WilddogIMApplication.getClient();
+        client=WilddogIM.newInstance();
         client.addMessageListener(listener);
         client.addGroupChangeListener(groupChangeListener);
         onInit();
@@ -73,7 +77,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
 
     }
 
-    private WilddogIMClient.WilddogIMGroupChangeListener groupChangeListener =new WilddogIMClient.WilddogIMGroupChangeListener() {
+    private WilddogIM.WilddogIMGroupChangeListener groupChangeListener =new WilddogIM.WilddogIMGroupChangeListener() {
         @Override
         public void memberJoined(String groupId, String owner, List<String> joinedUsers) {
             recentFragment.loadRecentContent();
@@ -90,10 +94,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         }
     };
 
-    private WilddogIMClient.WilddogIMMessageListener listener=new WilddogIMClient.WilddogIMMessageListener() {
+    private WilddogIM.WilddogIMMessageListener listener=new WilddogIM.WilddogIMMessageListener() {
         @Override
-        public void onNewMessage(List<com.wilddog.wilddogim.message.Message> messages) {
-            for(com.wilddog.wilddogim.message.Message wildMessage:messages){
+        public void onNewMessage(List<com.wilddog.wilddogim.Message> messages) {
+            for(com.wilddog.wilddogim.Message wildMessage:messages){
             recentFragment.loadRecentContent();
             if (ProgressManager.isRunBackground(MainActivity.this)) {
                 String content="";
@@ -191,7 +195,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-       // MessageManager.removeListener(listener, null);
         client.removeMessageListener(listener);
         client.removeGroupChangeListener(groupChangeListener);
     }
@@ -231,8 +234,13 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                .setPositiveButton("确认", new DialogInterface.OnClickListener() {
                    @Override
                    public void onClick(DialogInterface dialog, int which) {
-                       WilddogIMClient.signOut();
-                       WilddogIMClient.disconnect();
+                       WilddogAuth.getInstance().signOut();
+                       WilddogIMNotification.unbindUser(MainActivity.this, new WilddogNotification.CompletionListener() {
+                           @Override
+                           public void onComplete(NotificationError error) {
+
+                           }
+                       });
                        finish();
                        startActivity(new Intent(MainActivity.this,LoginActivity.class));
                    }
@@ -242,9 +250,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                        dialog.dismiss();
                    }
                }).show();
-
-
-
                 break;
         }
     }

@@ -36,17 +36,18 @@ import com.wilddog.utils.DownLoadData;
 import com.wilddog.utils.EnlargePictureTool;
 import com.wilddog.utils.FriendsManamger;
 import com.wilddog.utils.SharedPrefrenceTool;
-import com.wilddog.wilddogim.WilddogIMClient;
+import com.wilddog.wilddogim.WilddogIM;
 
+import com.wilddog.wilddogim.common.callback.WilddogValueCallback;
 import com.wilddog.wilddogim.core.group.GroupMemberOptionType;
-import com.wilddog.wilddogim.core.wildcallback.WildValueCallBack;
-import com.wilddog.wilddogim.message.GroupTipMessage;
-import com.wilddog.wilddogim.message.ImageMessage;
-import com.wilddog.wilddogim.message.Message;
-import com.wilddog.wilddogim.message.MessageStatus;
-import com.wilddog.wilddogim.message.MessageType;
-import com.wilddog.wilddogim.message.TextMessage;
-import com.wilddog.wilddogim.message.VoiceMessage;
+
+import com.wilddog.wilddogim.GroupTipMessage;
+import com.wilddog.wilddogim.ImageMessage;
+import com.wilddog.wilddogim.Message;
+import com.wilddog.wilddogim.MessageStatus;
+import com.wilddog.wilddogim.MessageType;
+import com.wilddog.wilddogim.TextMessage;
+import com.wilddog.wilddogim.VoiceMessage;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -94,7 +95,7 @@ public class ChatMsgListAdapter extends BaseAdapter {
         this.mContext = context;
         this.mActivity = (Activity) context;
         this.mInflater = LayoutInflater.from(context);
-        mUserName = WilddogIMClient.getCurrentUser().getUid();
+        mUserName = WilddogIM.getCurrentUser().getUid();
     }
 
     @Override
@@ -311,7 +312,7 @@ public class ChatMsgListAdapter extends BaseAdapter {
                      stopCurrentPttMedia(bIsSelf);
                      return;
                  }
-                 DownLoadData.getData(elem.getUrl(), new WildValueCallBack<byte[]>() {
+                 DownLoadData.getData(elem.getUrl(), new WilddogValueCallback<byte[]>() {
                      @Override
                      public void onSuccess(byte[] bytes) {
                          final byte[] voiceBytes = bytes;

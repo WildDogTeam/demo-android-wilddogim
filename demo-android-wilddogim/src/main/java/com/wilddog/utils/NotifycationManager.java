@@ -11,7 +11,7 @@ import android.util.Log;
 import com.wilddog.R;
 import com.wilddog.activitys.ChatActivity;
 import com.wilddog.type.ChatType;
-import com.wilddog.wilddogim.message.Message;
+import com.wilddog.wilddogim.Message;
 
 
 import org.json.JSONObject;

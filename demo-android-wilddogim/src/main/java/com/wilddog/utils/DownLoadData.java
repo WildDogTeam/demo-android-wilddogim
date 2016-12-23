@@ -2,18 +2,20 @@ package com.wilddog.utils;
 
 import android.util.Log;
 
-import com.squareup.okhttp.Call;
-import com.squareup.okhttp.Callback;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
+
 import com.wilddog.client.SyncError;
-import com.wilddog.wilddogim.core.wildcallback.WildValueCallBack;
+import com.wilddog.wilddogim.common.callback.WilddogValueCallback;
 
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class DownLoadData {
 
@@ -22,7 +24,7 @@ public class DownLoadData {
     }
    // OkHttp的execute的方法是同步方法，
     //OkHttp的enqueue的方法是异步方法，
-    public static void getData(final String path, final WildValueCallBack<byte[]> callback) {
+    public static void getData(final String path, final WilddogValueCallback<byte[]> callback) {
         OkHttpClient mOkHttpClient = new OkHttpClient();
         final Request request = new Request.Builder()
                 .url(path)
@@ -30,13 +32,13 @@ public class DownLoadData {
         Call call = mOkHttpClient.newCall(request);
         call.enqueue(new Callback() {
             @Override
-            public void onFailure(Request request, IOException e) {
+            public void onFailure(Call call1, IOException e) {
                 Log.d("获取音频失败", e.toString());
                 e.printStackTrace();
             }
 
             @Override
-            public void onResponse(Response response) throws IOException {
+            public void onResponse(Call call, Response response) throws IOException {
                 int code = response.code();
                 if (code == 200) {
                     InputStream is = response.body().byteStream();
@@ -63,7 +65,7 @@ public class DownLoadData {
         });
     }
 
-    public static void getImageData(final String path, final WildValueCallBack<byte[]> callback) {
+    public static void getImageData(final String path, final WilddogValueCallback<byte[]> callback) {
 
         OkHttpClient mOkHttpClient = new OkHttpClient();
         final Request request = new Request.Builder()
@@ -72,12 +74,11 @@ public class DownLoadData {
         Call call = mOkHttpClient.newCall(request);
         call.enqueue(new Callback() {
             @Override
-            public void onFailure(Request request, IOException e) {
-                //setErrorResId(view, errorResId);
+            public void onFailure(Call call, IOException e) {
             }
 
             @Override
-            public void onResponse(Response response) {
+            public void onResponse(Call call,Response response) {
                 InputStream is = null;
                 try {
                     is = response.body().byteStream();
@@ -90,13 +91,10 @@ public class DownLoadData {
                     byte[] data = outStream.toByteArray();//网页的二进制数据
                     outStream.flush();
                     outStream.close();
-
                     if (callback != null) {
                         callback.onSuccess(data);
                     }
-
                 } catch (Exception e) {
-                    //setErrorResId(view, errorResId);
                     callback.onFailed(new SyncError(111,e.toString(),"exception"));
 
                 } finally {

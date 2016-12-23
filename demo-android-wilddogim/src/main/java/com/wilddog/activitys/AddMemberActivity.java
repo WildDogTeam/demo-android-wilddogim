@@ -16,7 +16,7 @@ import com.wilddog.model.FriendInfo;
 import com.wilddog.utils.AlertMessageUtil;
 import com.wilddog.utils.Constant;
 import com.wilddog.wilddogim.Conversation;
-import com.wilddog.wilddogim.WilddogIMClient;
+import com.wilddog.wilddogim.WilddogIM;
 
 
 import java.util.ArrayList;
@@ -73,13 +73,13 @@ public class AddMemberActivity extends AppCompatActivity {
     }
 
     private void initData() {
-        conversation=WilddogIMApplication.getClient().getConversation(groupId);
+        conversation=WilddogIM.newInstance().getConversation(groupId);
 
         List<FriendInfo> groupMemberInfos=new ArrayList<>();
         for(String id:conversation.getMembers()){
            groupMemberInfos.add(WilddogIMApplication.getFriendManager().getFriendInfoById(id));
         }
-        List<FriendInfo> all=WilddogIMApplication.getFriendManager().getFriendList(WilddogIMClient.getCurrentUser().getUid());
+        List<FriendInfo> all=WilddogIMApplication.getFriendManager().getFriendList(WilddogIM.getCurrentUser().getUid());
         all.removeAll(groupMemberInfos);
         friendlists.addAll(all);
         handler.sendEmptyMessage(0);

@@ -16,6 +16,7 @@ import com.wilddog.model.FriendInfo;
 import com.wilddog.utils.AlertMessageUtil;
 import com.wilddog.utils.Constant;
 import com.wilddog.wilddogim.Conversation;
+import com.wilddog.wilddogim.WilddogIM;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -71,21 +72,17 @@ public class RemoveMemberActivity extends AppCompatActivity {
     }
 
     private void initData() {
-        conversation=WilddogIMApplication.getClient().getConversation(groupId);
+        conversation= WilddogIM.newInstance().getConversation(groupId);
         List<String> list= conversation.getMembers();
         for(String id:list){
             FriendInfo friendInfo=WilddogIMApplication.getFriendManager().getFriendInfoById(id);
-
             friendlists.add(friendInfo);
         }
-
-
         handler.sendEmptyMessage(0);
     }
 
 
     private void getMemberList() {
-
         HashMap<Integer, Boolean> bMap = AddGroupMemberAdapter.getIsSelected();
         ArrayList<String> lUsers = new ArrayList<String>();
         for (Map.Entry<Integer, Boolean> entry : bMap.entrySet()) {

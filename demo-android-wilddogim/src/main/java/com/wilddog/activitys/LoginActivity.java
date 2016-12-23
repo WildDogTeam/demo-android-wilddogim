@@ -11,15 +11,19 @@ import android.widget.Toast;
 
 import com.wilddog.R;
 import com.wilddog.WilddogIMApplication;
-
 import com.wilddog.model.FriendInfo;
 import com.wilddog.model.UserInfo;
 import com.wilddog.utils.Constant;
 import com.wilddog.utils.SharedPrefrenceTool;
 import com.wilddog.utils.Volleyutil;
-import com.wilddog.wilddogauth.model.WilddogUser;
-import com.wilddog.wilddogim.WilddogIMClient;
-import com.wilddog.wilddogim.core.wildcallback.WildValueCallBack;
+import com.wilddog.wilddogauth.WilddogAuth;
+import com.wilddog.wilddogauth.core.Task;
+import com.wilddog.wilddogauth.core.listener.OnCompleteListener;
+import com.wilddog.wilddogauth.core.result.AuthResult;
+import com.wilddog.wilddogim.WilddogIM;
+import com.wilddog.wilddogim.WilddogIMNotification;
+import com.wilddog.wilddogim.libs.impush.core.NotificationError;
+import com.wilddog.wilddogim.libs.impush.core.WilddogNotification;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -33,14 +37,14 @@ public class LoginActivity extends BaseActivity {
     private EditText mEt_UserID;
     private Button mBtn_Login;
     private Button mBtn_choose_user;
-    private WilddogIMClient client;
+    private WilddogIM client;
     String strUserID;
+    private WilddogAuth wilddogAuth;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        client=WilddogIMApplication.getClient();
-   /*     mEt_UserID = (EditText) findViewById(R.id.et_userID);*/
+        wilddogAuth =WilddogAuth.getInstance();
         mBtn_Login = (Button) findViewById(R.id.btn_login);
         mBtn_Login.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -62,17 +66,12 @@ public class LoginActivity extends BaseActivity {
     }
 
 
-
     private void checkOnlineStatus() {
-
-
         if (TextUtils.isEmpty(strUserID)) {
             Toast.makeText(LoginActivity.this,"当前用户为空",Toast.LENGTH_SHORT).show();
             return;
         }
-
         // 查询当前用户是否在线。
-
         String onlinePath =String.format(Constant.GET_CURRENT_USER_SATTUS,strUserID);
         Volleyutil.CONNECTGET(onlinePath, new Volleyutil.Listener() {
             @Override
@@ -109,31 +108,37 @@ public class LoginActivity extends BaseActivity {
             public void onsuccess(JSONObject JsonObject) {
                 final UserInfo user = parseUserInfo(JsonObject);
                 //
-                client.connect();
-                client.addAuthStateListener(new WilddogIMClient.WilddogIMAuthStateListener() {
-                    @Override
-                    public void onAuthStateChanged(WilddogUser user) {
-                        if(user==null){
-                            // 为空
-                        }else {
-                            //登录成功
-                            Log.d("result",user.getUid());
-                        }
-                    }
-                });
+                 wilddogAuth.addAuthStateListener(new WilddogAuth.AuthStateListener() {
+                     @Override
+                     public void onAuthStateChanged(WilddogAuth wilddogAuth) {
+                         Log.d("result",(wilddogAuth.getCurrentUser()==null)+"");
+                         if(wilddogAuth.getCurrentUser()==null){
+                             // 为空
+                         }else {
+                             //登录成功
+                             Log.d("result",wilddogAuth.getCurrentUser().getUid());
+                         }
+                     }
+                 });
+
                 // 自定义token
                 String token = user.getToken();
-                client.signIn(token, new WildValueCallBack<WilddogUser>() {
+                wilddogAuth.signInWithCustomToken(token).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
-                    public void onSuccess(WilddogUser wilddogUser) {
-                        SharedPrefrenceTool.setUserID(LoginActivity.this, strUserID);
-                        WilddogIMApplication.getFriendManager().saveUserInfo(user);
-                        initFriendData(strUserID);
-                    }
+                    public void onComplete(Task<AuthResult> var1) {
+                        if(var1.isSuccessful()){
+                            SharedPrefrenceTool.setUserID(LoginActivity.this, strUserID);
+                            WilddogIMNotification.bindUser(LoginActivity.this, new WilddogNotification.CompletionListener() {
+                                @Override
+                                public void onComplete(NotificationError error) {
 
-                    @Override
-                    public void onFailed(int code, String des) {
-                        Log.e("result",des);
+                                }
+                            });
+                            WilddogIMApplication.getFriendManager().saveUserInfo(user);
+                            initFriendData(strUserID);
+                        }else {
+                            Log.e("result",var1.getException().toString());
+                        }
                     }
                 });
             }
@@ -190,36 +195,18 @@ public class LoginActivity extends BaseActivity {
 
     private UserInfo parseUserInfo(JSONObject jsonObject) {
         UserInfo userInfo = new UserInfo();
-        // success 结果 {
-        //  "code":0,
-        //        "data":{"user":{"id":1,"name":"野狗1号","avatar":"https://img.wdstatic.cn/imdemo/1.png"},"token":"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ2IjowLCJpYXQiOjE0NjcwMjQxOTYsImQiOnsidWlkIjoiMSJ9fQ.AQKmO0aiIin4-GtvOPC8P4AFg8FyOoLusRG-2vZGOqo"}
-        //}
         try {
             userInfo.setToken(jsonObject.getJSONObject("data").get("token").toString());
             userInfo.setAvatar(jsonObject.getJSONObject("data").getJSONObject("user").get("avatar").toString());
             userInfo.setUserID(jsonObject.getJSONObject("data").getJSONObject("user").get("id").toString());
             userInfo.setUserName(jsonObject.getJSONObject("data").getJSONObject("user").get("name").toString());
             SharedPrefrenceTool.saveUserInfo(userInfo, LoginActivity.this);
-            // Push 登录时候初始化
-//eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ2IjowLCJpYXQiOjE1ODc3OTY0NDYsImQiOnsidWlkIjoiZy11c2VySWQifSwiZXhwIjoxNTg3Nzk2NDQ2LCJhZG1pbiI6dHJ1ZX0.kj01WkBnvVCDj9X0sk5G9pgcZsA1gUZbN8JiGAYNG5o
-         /*   WilddogIMApplication.getPushManager().initialize(LoginActivity.this, userInfo.getUserID(), userInfo.getToken(), new SDKStateListener() {
-                //    WilddogIMApplication.getPushManager().initialize(LoginActivity.this, "g-userId","eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ2IjowLCJpYXQiOjE1ODc3OTY0NDYsImQiOnsidWlkIjoiZy11c2VySWQifSwiZXhwIjoxNTg3Nzk2NDQ2LCJhZG1pbiI6dHJ1ZX0.kj01WkBnvVCDj9X0sk5G9pgcZsA1gUZbN8JiGAYNG5o", new SDKStateListener() {
-                @Override
-                public void onClientInitialized(String s) {
-                    Log.d("PushSDK", "Client init finished" + s);
-                }
-            });
-            a82751dfe9f1f4d88b8530fb81cccb2f6
-            // Push 登录时候打开
-            if (!WilddogIMApplication.getPushManager().isPushTurnedOn(LoginActivity.this)) {
-                WilddogIMApplication.getPushManager().turnOnPush(LoginActivity.this);
-            }*/
+
         } catch (JSONException e) {
             e.printStackTrace();
         }
         return userInfo;
     }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);

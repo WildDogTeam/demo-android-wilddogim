@@ -67,10 +67,6 @@
 
         <!-- 用于conversation的contentprovider -->
 
-        <provider
-            android:name=".wilddogim.core.db.WildDBProvider"
-            android:authorities="com.wilddog.provider"
-            android:exported="true" />
 
         <activity
             android:name=".activitys.ChooseMemberActivity"
@@ -101,7 +97,7 @@
           APP ID：10705716    |   应用包名：com.wilddog.testpush    |   APP SECRET：fe063f105fd8c4c98105a4e9e7dbd983
         -->
         <!-- 第三方相关 :接收Push消息（注册、Push消息、Push连接状态、标签，LBS上报结果）广播 -->
-        <receiver android:name=".wilddogimpush.receiver.WilddogHuaweiPushReceiver">
+        <receiver android:name=".wilddogim.libs.impush.receiver.WilddogHuaweiPushReceiver">
             <intent-filter>
 
                 <!-- 必须,用于接收token -->
@@ -121,10 +117,6 @@
                 android:value="successRateAnalytics" />
         </receiver>
 
-        <!--
-             备注：Push相关的android组件需要添加到业务的AndroidManifest.xml,
-        	 Push相关android组件运行在另外一个进程是为了防止Push服务异常而影响主业务
-        -->
 
 
         <!-- PushSDK:PushSDK接收外部请求事件入口 -->
@@ -161,35 +153,6 @@
         <service
             android:name="com.huawei.android.pushagent.PushService"
             android:process=":pushservice"></service>
-
-        <!-- PushSDK:富媒体呈现页面，用于呈现服务器下发的富媒体消息 -->
-        <!-- locale|layoutDirection 切换语言后不重新创建activity -->
-        <!--
-          <activity
-              android:name="com.huawei.android.pushselfshow.richpush.RichPushActivity"
-              android:process=":pushservice"
-
-              android:configChanges="orientation|screenSize|locale|layoutDirection"
-              android:screenOrientation="portrait">
-              <meta-data android:name="hwc-theme"
-                  android:value="androidhwext:style/Theme.Emui"/>
-              <intent-filter>
-                  <action android:name="com.huawei.android.push.intent.RICHPUSH" />
-
-                  <category android:name="android.intent.category.DEFAULT" />
-              </intent-filter>
-          </activity>
-
-          <activity
-              android:name="com.huawei.android.pushselfshow.permission.RequestPermissionsActivity"
-              android:theme="@android:style/Theme.DeviceDefault.Light.Dialog.NoActionBar"
-              android:launchMode="singleTop"
-              android:screenOrientation="portrait"
-              android:configChanges="orientation|screenSize|locale|layoutDirection"
-              android:exported="false">
-          </activity>
-        -->
-
 
         <!--         小米 -->
         <service
@@ -229,7 +192,7 @@
             </intent-filter>
         </receiver>
         <receiver
-            android:name=".wilddogimpush.receiver.WilddogMiPushReceiver"
+            android:name=".wilddogim.libs.impush.receiver.WilddogMiPushReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="com.xiaomi.mipush.RECEIVE_MESSAGE" />

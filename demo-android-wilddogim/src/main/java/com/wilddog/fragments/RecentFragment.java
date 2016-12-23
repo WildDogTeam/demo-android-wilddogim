@@ -21,11 +21,11 @@ import com.wilddog.utils.Constant;
 import com.wilddog.utils.GenGroupPorpertyTool;
 import com.wilddog.utils.GenerateConversationId;
 import com.wilddog.wilddogim.Conversation;
-import com.wilddog.wilddogim.WilddogIMClient;
-import com.wilddog.wilddogim.message.Message;
+import com.wilddog.wilddogim.WilddogIM;
+import com.wilddog.wilddogim.Message;
 
-import com.wilddog.wilddogim.message.MessageType;
-import com.wilddog.wilddogim.message.TextMessage;
+import com.wilddog.wilddogim.MessageType;
+import com.wilddog.wilddogim.TextMessage;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,14 +42,14 @@ public class RecentFragment extends BaseFragment {
     private boolean mHidden = false;
     private RelativeLayout rl_nomessage;
     private Button btn_makeconversation;
-    private WilddogIMClient client;
+    private WilddogIM client;
     List<Conversation> conversationList;
     @Override
     public View initView() {
 
         View view = View.inflate(getActivity(), R.layout.fg_recent, null);
         getChatList(view);
-        client=WilddogIMApplication.getClient();
+        client=WilddogIM.newInstance();
         return view;
     }
 
